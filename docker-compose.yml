@@ -1,0 +1,57 @@
+version: '3.8' # Boa prática especificar a versão
+
+services:
+  discovery-server:
+    image: tesk-master-discovery-server
+    container_name: tesk-master-discovery-server-1 # Adicionado para melhor identificação
+    ports:
+      - "8761:8761"
+
+  config-server:
+    image: tesk-master-config-server
+    container_name: tesk-master-config-server-1 # Adicionado
+    depends_on:
+      - discovery-server
+    ports:
+      - "8888:8888"
+    environment:
+      # O Config Server precisa saber onde encontrar o Eureka Server para se registrar e/ou validar configurações
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+
+  criar-usuarios:
+    image: tesk-master-criar-usuarios
+    container_name: tesk-master-criar-usuarios-1 # Adicionado
+    depends_on:
+      - config-server
+      - discovery-server
+    ports:
+      - "8081:8080"
+    environment:
+      # **Essencial:** Onde o serviço deve se registrar no Eureka
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+      # **Essencial:** Onde o serviço deve buscar suas configurações no Config Server
+      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
+
+  crud-de-eventos:
+    image: tesk-master-crud-de-eventos
+    container_name: tesk-master-crud-de-eventos-1 # Adicionado
+    depends_on:
+      - config-server
+      - discovery-server
+    ports:
+      - "8082:8080"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
+
+  notification-service:
+    image: tesk-master-notification-service
+    container_name: tesk-master-notification-service-1 # Adicionado
+    depends_on:
+      - config-server
+      - discovery-server
+    ports:
+      - "8083:8080"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
