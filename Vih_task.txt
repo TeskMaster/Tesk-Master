@@ -1,0 +1,14 @@
+vou ainda colocar pra compilar o maven de forma automatica
+
+
+pra rodar, entre no diretorio de cada serviço, discovery, config, criar-usuarios, eventos, email... pipipi popopo
+e rodar no cmd
+mvn clean package -DskipTests
+                    #ta ignorando os testes, pra ser mais rapido, se quiser testar tudo 100% -> mvn clean package
+
+fez tudo ? nos 5 ??? deu certinho ??? 
+vai pro diretorio principal e roda no cmd
+
+docker-compose up --build
+
+(lembrar de ter o docker instalado em)
