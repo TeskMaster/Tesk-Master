@@ -7,7 +7,7 @@ WORKDIR /app
 COPY . .
 
 # Executa o build com Maven (usando o wrapper incluído no projeto)
-RUN ./mvnw clean package -DskipTests
+RUN ./mvnw clean package
 
 # Executa o .jar gerado (permitindo wildcard)
 CMD ["sh", "-c", "java -jar target/*.jar"]
