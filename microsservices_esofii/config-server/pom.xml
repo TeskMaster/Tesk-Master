@@ -55,7 +55,7 @@
     </dependencyManagement>
 
     <build>
-        <finalName>app</finalName> <!-- 👈 Isso aqui define o nome fixo do JAR -->
+        <finalName>app</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
