@@ -1,0 +1,234 @@
+# RELATÓRIO DE CORREÇÕES - DOCKER CONFIG SERVER E DISCOVERY SERVER
+
+## PROBLEMA IDENTIFICADO
+
+Os containers do config-server e discovery-server não conseguiam ser construídos, gerando o erro:
+```
+failed to solve: lstat /build/discovery-server/target: no such file or directory
+```
+
+## ANÁLISE DO PROBLEMA
+
+### 1. ESTRUTURA DO PROJETO
+O projeto possui uma estrutura Maven multi-módulo:
+```
+microsservices_esofii/
+├── pom.xml (projeto pai)
+├── config-server/
+│   ├── pom.xml
+│   ├── mvnw
+│   └── src/...
+└── discovery-server/
+    ├── pom.xml
+    ├── mvnw
+    └── src/...
+```
+
+### 2. PROBLEMAS ENCONTRADOS
+
+#### A) Dockerfiles incorretos
+**ANTES (config-server/Dockerfile):**
+```dockerfile
+# Etapa 1: build com Maven
+FROM eclipse-temurin:17-jdk-alpine as builder
+
+WORKDIR /build
+
+COPY . .
+
+RUN chmod +x mvnw
+RUN ./mvnw clean package -pl config-server -am -DskipTests
+
+# Etapa 2: runtime
+FROM eclipse-temurin:17-jdk-alpine
+
+WORKDIR /app
+
+# Copia qualquer .jar e renomeia para app.jar
+COPY --from=builder /build/config-server/target/*.jar app.jar
+
+CMD ["java", "-jar", "app.jar"]
+```
+
+**PROBLEMAS:**
+- `COPY . .` copiava apenas o conteúdo da pasta config-server, não o projeto pai
+- Comando Maven incorreto: `./mvnw clean package -pl config-server -am` não funcionava pois não tinha acesso ao pom.xml pai
+- Tentava encontrar o target em local inexistente
+
+#### B) Docker-compose com contexto incorreto
+**ANTES (docker-compose.yml):**
+```yaml
+version: '3.8'
+
+services:
+  discovery-server:
+    build: ./microsservices_esofii/discovery-server
+    # ...
+  config-server:
+    build: ./microsservices_esofii/config-server
+    # ...
+```
+
+**PROBLEMAS:**
+- Contexto do build apontava apenas para a pasta do serviço individual
+- Não tinha acesso ao projeto pai (pom.xml principal)
+
+#### C) Incompatibilidade de versões Java
+**ANTES:**
+- pom.xml pai: Java 21
+- pom.xml dos módulos: Java 17
+- Dockerfiles: Java 17
+
+## SOLUÇÕES IMPLEMENTADAS
+
+### 1. CORREÇÃO DOS DOCKERFILES
+
+**DEPOIS (config-server/Dockerfile):**
+```dockerfile
+# Etapa 1: build com Maven
+FROM eclipse-temurin:17-jdk-alpine as builder
+
+WORKDIR /build
+
+# Copiar todo o projeto pai
+COPY pom.xml .
+COPY config-server ./config-server
+COPY discovery-server ./discovery-server
+
+# Dar permissão de execução para o Maven Wrapper
+RUN chmod +x config-server/mvnw
+
+# Fazer build do projeto inteiro
+RUN cd config-server && ./mvnw clean package -DskipTests
+
+# Etapa 2: runtime
+FROM eclipse-temurin:17-jdk-alpine
+
+WORKDIR /app
+
+# Copia o JAR do config-server
+COPY --from=builder /build/config-server/target/app.jar app.jar
+
+CMD ["java", "-jar", "app.jar"]
+```
+
+**MELHORIAS:**
+- Copia o pom.xml pai e ambos os módulos
+- Usa o Maven Wrapper do módulo específico
+- Referencia o JAR pelo nome fixo definido no pom.xml (`app.jar`)
+
+**DEPOIS (discovery-server/Dockerfile):**
+```dockerfile
+# Etapa 1: build com Maven
+FROM eclipse-temurin:17-jdk-alpine as builder
+
+WORKDIR /build
+
+# Copiar todo o projeto pai
+COPY pom.xml .
+COPY config-server ./config-server
+COPY discovery-server ./discovery-server
+
+# Dar permissão de execução para o Maven Wrapper
+RUN chmod +x discovery-server/mvnw
+
+# Fazer build do projeto inteiro
+RUN cd discovery-server && ./mvnw clean package -DskipTests
+
+# Etapa 2: runtime
+FROM eclipse-temurin:17-jdk-alpine
+
+WORKDIR /app
+
+# Copia o JAR do discovery-server
+COPY --from=builder /build/discovery-server/target/app.jar app.jar
+
+CMD ["java", "-jar", "app.jar"]
+```
+
+### 2. CORREÇÃO DO DOCKER-COMPOSE
+
+**DEPOIS (docker-compose.yml):**
+```yaml
+services:
+  discovery-server:
+    build: 
+      context: ./microsservices_esofii
+      dockerfile: ./discovery-server/Dockerfile
+    ports:
+      - "8761:8761"
+    networks:
+      - spring-net
+
+  config-server:
+    build: 
+      context: ./microsservices_esofii
+      dockerfile: ./config-server/Dockerfile
+    ports:
+      - "8888:8888"
+    depends_on:
+      - discovery-server
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+    networks:
+      - spring-net
+```
+
+**MELHORIAS:**
+- Context aponta para a pasta pai (microsservices_esofii)
+- Dockerfile especifica o caminho correto
+- Removida a versão obsoleta que gerava warning
+
+### 3. VERIFICAÇÃO DOS POM.XML
+
+**Estrutura correta identificada:**
+- Ambos os módulos já tinham `<finalName>app</finalName>` 
+- Ambos usavam Java 17 (compatível com Docker)
+- Maven Wrapper presente em ambos os módulos
+
+## TESTES REALIZADOS
+
+### 1. Build individual
+```bash
+# Testado e funcionou
+docker-compose build discovery-server
+docker-compose build config-server
+```
+
+### 2. Build completo
+```bash
+# Testado e funcionou
+docker-compose up --build -d
+```
+
+### 3. Verificação dos containers
+```bash
+# Todos os 5 serviços subiram corretamente
+docker-compose ps
+```
+
+## RESULTADO FINAL
+
+✅ **ANTES:** Usuário precisava de Java, Maven, e fazer build manual
+✅ **DEPOIS:** Usuário só precisa de Docker
+
+✅ **ANTES:** Erro de "target directory not found"
+✅ **DEPOIS:** Build automático e funcional
+
+✅ **ANTES:** Configuração complexa
+✅ **DEPOIS:** Comando único: `docker-compose up --build`
+
+## ARQUIVOS CRIADOS/MODIFICADOS
+
+1. **microsservices_esofii/config-server/Dockerfile** - Corrigido
+2. **microsservices_esofii/discovery-server/Dockerfile** - Corrigido  
+3. **docker-compose.yml** - Context corrigido e versão removida
+4. **INSTRUÇÕES.md** - Criado com guia para o usuário final
+
+## BENEFÍCIOS ALCANÇADOS
+
+- 🚀 **Containerização completa** - Não precisa de ferramentas externas
+- 🔧 **Build automático** - Maven roda dentro do container
+- 📦 **Distribuição simples** - Só precisa clonar e rodar docker-compose
+- 🗂️ **Clean workspace** - target/ no .gitignore
+- ⚡ **Execução rápida** - Multi-stage build otimizado

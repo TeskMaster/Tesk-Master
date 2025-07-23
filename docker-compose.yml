@@ -1,15 +1,17 @@
-version: '3.8'
-
 services:
   discovery-server:
-    build: ./microsservices_esofii/discovery-server
+    build: 
+      context: ./microsservices_esofii
+      dockerfile: ./discovery-server/Dockerfile
     ports:
       - "8761:8761"
     networks:
       - spring-net
 
   config-server:
-    build: ./microsservices_esofii/config-server
+    build: 
+      context: ./microsservices_esofii
+      dockerfile: ./config-server/Dockerfile
     ports:
       - "8888:8888"
     depends_on:
@@ -22,7 +24,7 @@ services:
   criar-usuarios:
     build: ./config-service/criar-usuarios
     ports:
-      - "8081:8081"
+      - "8081:9000"
     depends_on:
       - config-server
       - discovery-server
@@ -34,7 +36,7 @@ services:
   crud-de-eventos:
     build: ./config-service/crud-de-eventos
     ports:
-      - "8082:8082"
+      - "8082:9001"
     depends_on:
       - config-server
       - discovery-server
@@ -46,7 +48,7 @@ services:
   notification-service:
     build: ./config-service/notification-service
     ports:
-      - "8083:8083"
+      - "8083:8084"
     depends_on:
       - config-server
       - discovery-server

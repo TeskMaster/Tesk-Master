@@ -14,7 +14,13 @@ public class NotificationController {
     @Autowired
     private EmailService emailService;
 
-    // Endpoint para enviar um e-mail simples
+    /**
+     * API para enviar um email simples através do sistema de notificações.
+     * Recebe destinatário, assunto e corpo do email e envia via SMTP configurado.
+     * 
+     * @param emailRequest Dados do email (destinatário, assunto e corpo da mensagem)
+     * @return Confirmação de envio ou mensagem de erro
+     */
     @PostMapping("/send-email")
     public ResponseEntity<String> sendEmail(@RequestBody EmailRequest emailRequest) {
         boolean sent = emailService.sendSimpleEmail(

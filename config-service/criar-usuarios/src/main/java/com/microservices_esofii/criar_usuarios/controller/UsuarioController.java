@@ -16,7 +16,14 @@ public class UsuarioController {
     @Autowired
     private UsuarioService service;
 
-    //Endpoint POST para cadastrar um usuário via DTO.
+    /**
+     * API para cadastrar um novo usuário no sistema.
+     * Recebe os dados do usuário (nome e email) e cria um novo registro.
+     * Valida se o email já não está em uso antes de cadastrar.
+     * 
+     * @param dto Dados do usuário a ser cadastrado (nome e email)
+     * @return Dados do usuário cadastrado com ID e data de criação
+     */
     @PostMapping("/cadastrar")
     public ResponseEntity<?> cadastrar(@Valid @RequestBody UsuarioRequestDTO dto) {
         try {
@@ -27,8 +34,12 @@ public class UsuarioController {
         }
     }
 
-    //Retorna a lista de todos os usuários cadastrados.
-
+    /**
+     * API para listar todos os usuários cadastrados no sistema.
+     * Retorna uma lista com ID, nome, email e data de criação de cada usuário.
+     * 
+     * @return Lista de todos os usuários cadastrados
+     */
     @GetMapping("/listar")
     public ResponseEntity<List<UsuarioResponseDTO>> listarTodos() {
         List<UsuarioResponseDTO> usuarios = service.listarTodos();

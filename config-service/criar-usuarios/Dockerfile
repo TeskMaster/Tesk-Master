@@ -1,6 +1,13 @@
-# Dockerfile
 FROM eclipse-temurin:17-jdk-alpine
-VOLUME /tmp
-ARG JAR_FILE=target/*.jar
-COPY ${JAR_FILE} app.jar
-ENTRYPOINT ["java","-jar","/app.jar"]
+
+# Define o diretório de trabalho
+WORKDIR /app
+
+# Copia todos os arquivos do projeto para dentro da imagem
+COPY . .
+
+# Executa o build com Maven (usando o wrapper incluído no projeto)
+RUN ./mvnw clean package -DskipTests
+
+# Executa o .jar gerado (permitindo wildcard)
+CMD ["sh", "-c", "java -jar target/*.jar"]

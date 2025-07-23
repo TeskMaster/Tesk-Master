@@ -1,5 +1,7 @@
 package com.microservice_esofii.notification_service.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
@@ -8,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class EmailService {
+
+    private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
     @Autowired
     private JavaMailSender mailSender;
@@ -20,10 +24,10 @@ public class EmailService {
             message.setText(body);
 
             mailSender.send(message);
-            System.out.println("Email enviado com sucesso " + to);
+            logger.info("Email enviado com sucesso para: {}", to);
             return true;
         } catch (MailException e){
-            System.err.println("Error sending email to " + to + ": " + e.getMessage());
+            logger.error("Erro ao enviar email para {}: {}", to, e.getMessage());
             return false;
         }
     }

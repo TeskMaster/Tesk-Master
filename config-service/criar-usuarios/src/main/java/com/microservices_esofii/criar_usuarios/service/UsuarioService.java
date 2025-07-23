@@ -17,8 +17,10 @@ public class UsuarioService {
     @Autowired
     private UsuarioRepository repository;
 
-    //Registra um novo usuário com base no DTO de entrada e retorna um DTO de resposta.
-
+    /**
+     * Registra um novo usuário com base no DTO de entrada e retorna um DTO de resposta.
+     * Verifica se o email já está em uso antes de cadastrar.
+     */
     public UsuarioResponseDTO cadastrarUsuario(UsuarioRequestDTO dto) {
         Optional<Usuario> existente = repository.findByEmail(dto.getEmail());
 
@@ -43,8 +45,9 @@ public class UsuarioService {
         return response;
     }
 
-     //Retorna uma lista de todos os usuários cadastrados, mapeados para DTOs de resposta.
-
+    /**
+     * Retorna uma lista de todos os usuários cadastrados, mapeados para DTOs de resposta.
+     */
     public List<UsuarioResponseDTO> listarTodos() {
         return repository.findAll()
                 .stream()

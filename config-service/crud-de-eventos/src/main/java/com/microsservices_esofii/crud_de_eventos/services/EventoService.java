@@ -4,6 +4,8 @@ import com.microsservices_esofii.crud_de_eventos.model.Evento;
 import com.microsservices_esofii.crud_de_eventos.repository.EventoRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -16,38 +18,43 @@ private final EventoRepository eventoRepository;
     }
 
     public Evento criarEvento(Evento evento){
-      return eventoRepository.save(evento);
+        return eventoRepository.save(evento);
     }
 
-    public Evento atualizarEvento(Long id,Evento eventoAtualizado){
+    public List<Evento> listarTodos(){
+        return eventoRepository.findAll();
+    }
+
+    public Evento atualizarEvento(Long id, Evento eventoAtualizado){
 
         Optional<Evento> optionalEvento = eventoRepository.findById(id);
 
         if (optionalEvento.isPresent()) {
             Evento evento = optionalEvento.get();
 
-            if(!evento.getTitulo().equals(eventoAtualizado.getTitulo())){
+            // Verifica e atualiza apenas os campos que foram modificados
+            // Usando Objects.equals para evitar NullPointerException
+            if(eventoAtualizado.getTitulo() != null && !Objects.equals(evento.getTitulo(), eventoAtualizado.getTitulo())){
                 evento.setTitulo(eventoAtualizado.getTitulo());
             }
-            if(!evento.getDescricao().equals(eventoAtualizado.getDescricao())){
+            if(eventoAtualizado.getDescricao() != null && !Objects.equals(evento.getDescricao(), eventoAtualizado.getDescricao())){
                 evento.setDescricao(eventoAtualizado.getDescricao());
             }
-            if(!evento.getDataInicio().equals(eventoAtualizado.getDataInicio())){
+            if(eventoAtualizado.getDataInicio() != null && !Objects.equals(evento.getDataInicio(), eventoAtualizado.getDataInicio())){
                 evento.setDataInicio(eventoAtualizado.getDataInicio());
             }
-            if(!evento.getHorarioInicio().equals(eventoAtualizado.getHorarioInicio())){
+            if(eventoAtualizado.getHorarioInicio() != null && !Objects.equals(evento.getHorarioInicio(), eventoAtualizado.getHorarioInicio())){
                 evento.setHorarioInicio(eventoAtualizado.getHorarioInicio());
             }
-            if(!evento.getLocalEvento().equals(eventoAtualizado.getLocalEvento())){
+            if(eventoAtualizado.getLocalEvento() != null && !Objects.equals(evento.getLocalEvento(), eventoAtualizado.getLocalEvento())){
                 evento.setLocalEvento(eventoAtualizado.getLocalEvento());
             }
 
-          return  eventoRepository.save(evento);
+            return eventoRepository.save(evento);
+        } else {
+            // Se o evento não for encontrado, lança uma exceção ao invés de retornar null
+            throw new RuntimeException("Evento não encontrado com ID: " + id);
         }
-        return null;
-
-
-
     }
 
 }
