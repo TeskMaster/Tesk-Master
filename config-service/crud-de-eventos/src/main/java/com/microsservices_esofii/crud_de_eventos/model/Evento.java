@@ -17,22 +17,32 @@ public class Evento {
     private Long id;
 
     @Column(nullable = false)
-   private String titulo;
+    private String titulo;
 
-    @Column(columnDefinition = "TEXT",nullable = false)
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String descricao;
 
-
-    @Column(name = "data_inicio",nullable = false)
+    @Column(name = "data_inicio", nullable = false)
     private LocalDate dataInicio;
 
-    @Column(name = "horario_inicio",nullable = false)
+    @Column(name = "horario_inicio", nullable = false)
     private LocalTime horarioInicio;
 
-    @Column(name = "local_evento",nullable = false)
+    @Column(name = "local_evento", nullable = false)
     private String localEvento;
 
+    public Evento() {
+        // Construtor padrão necessário para o JPA
+    }
 
+    public Evento(Long id, String titulo, String descricao, LocalDate dataInicio, LocalTime horarioInicio, String localEvento) {
+        this.id = id;
+        this.titulo = titulo;
+        this.descricao = descricao;
+        this.dataInicio = dataInicio;
+        this.horarioInicio = horarioInicio;
+        this.localEvento = localEvento;
+    }
 
     public Long getId() {
         return id;
@@ -62,8 +72,8 @@ public class Evento {
         return dataInicio;
     }
 
-    public void setDataInicio(LocalDate data) {
-        this.dataInicio = data;
+    public void setDataInicio(LocalDate dataInicio) {
+        this.dataInicio = dataInicio;
     }
 
     public LocalTime getHorarioInicio() {
@@ -78,7 +88,7 @@ public class Evento {
         return localEvento;
     }
 
-    public void setLocalEvento(String local) {
-        this.localEvento = local;
+    public void setLocalEvento(String localEvento) {
+        this.localEvento = localEvento;
     }
 }

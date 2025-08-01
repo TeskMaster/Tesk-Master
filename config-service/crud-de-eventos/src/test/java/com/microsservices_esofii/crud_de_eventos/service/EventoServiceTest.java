@@ -101,15 +101,22 @@ class EventoServiceTest {
     }
 
     @Test
-    void deveRetornarNullQuandoAtualizarEventoComIdInexistente() {
-        Evento atualizado = new Evento(99L, "Inexistente", "Sem dados",
-                LocalDate.now(), LocalTime.of(12, 0), "Sala X");
+    void deveLancarExcecaoQuandoAtualizarEventoComIdInexistente() {
+        Long idInexistente = 99L;
+        EventoRequestDTO dto = new EventoRequestDTO();
+        dto.setTitulo("Novo título");
+        dto.setDescricao("Nova descrição");
+        dto.setDataInicio(LocalDate.now());
+        dto.setHorarioInicio(LocalTime.NOON);
+        dto.setLocalEvento("Novo local");
 
-        when(eventoRepository.findById(99L)).thenReturn(Optional.empty());
+        when(repository.findById(idInexistente)).thenReturn(Optional.empty());
 
-        Evento resultado = eventoService.atualizarEvento(99L, atualizado);
+        RuntimeException exception = assertThrows(RuntimeException.class, () ->
+                service.atualizarEvento(idInexistente, dto)
+        );
 
-        assertNull(resultado);
-        verify(eventoRepository, never()).save(any());
+        assertEquals("Evento não encontrado com ID: 99", exception.getMessage());
     }
+
 }
