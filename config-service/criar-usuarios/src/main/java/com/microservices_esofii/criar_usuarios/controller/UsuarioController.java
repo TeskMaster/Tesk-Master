@@ -10,21 +10,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/usuarios")
+@RequestMapping("/api/usuarios")
 public class UsuarioController {
 
     @Autowired
     private UsuarioService service;
 
-    /**
-     * API para cadastrar um novo usuário no sistema.
-     * Recebe os dados do usuário (nome e email) e cria um novo registro.
-     * Valida se o email já não está em uso antes de cadastrar.
-     * 
-     * @param dto Dados do usuário a ser cadastrado (nome e email)
-     * @return Dados do usuário cadastrado com ID e data de criação
-     */
-    @PostMapping("/cadastrar")
+    @PostMapping
     public ResponseEntity<?> cadastrar(@Valid @RequestBody UsuarioRequestDTO dto) {
         try {
             UsuarioResponseDTO response = service.cadastrarUsuario(dto);
@@ -34,13 +26,7 @@ public class UsuarioController {
         }
     }
 
-    /**
-     * API para listar todos os usuários cadastrados no sistema.
-     * Retorna uma lista com ID, nome, email e data de criação de cada usuário.
-     * 
-     * @return Lista de todos os usuários cadastrados
-     */
-    @GetMapping("/listar")
+    @GetMapping
     public ResponseEntity<List<UsuarioResponseDTO>> listarTodos() {
         List<UsuarioResponseDTO> usuarios = service.listarTodos();
         return ResponseEntity.ok(usuarios);
