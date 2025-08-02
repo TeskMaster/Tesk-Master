@@ -1,17 +1,17 @@
-# Usa imagem com Java 17
+# Base com JDK 17 e Alpine para leveza
 FROM eclipse-temurin:17-jdk-alpine
 
-# Instala Maven no ambiente
+# Instala o Maven necessário para o build
 RUN apk add --no-cache maven
 
-# Define o diretório base dentro do container
+# Define diretório interno
 WORKDIR /app
 
-# Copia os arquivos do serviço para o container
+# Copia o código-fonte para o container
 COPY . .
 
-# Executa o build e gera o JAR (sem testes)
+# Build do serviço sem rodar testes
 RUN mvn clean package -DskipTests
 
-# Roda o JAR quando o container iniciar
+# Comando que roda o .jar
 CMD ["sh", "-c", "java -jar target/*.jar"]
