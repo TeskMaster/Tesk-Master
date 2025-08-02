@@ -1,4 +1,4 @@
-package com.microsservices_esofii.NotificationServiceApplication;
+package com.microservice_esofii.notification_service;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

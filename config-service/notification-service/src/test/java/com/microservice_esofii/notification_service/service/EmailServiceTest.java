@@ -2,6 +2,7 @@ package com.microservice_esofii.notification_service.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
@@ -21,26 +22,26 @@ class EmailServiceTest {
 
     @Test
     void deveEnviarEmailComSucesso() {
-        // Arrange
+        // Arrange: simula o envio de e-mail com sucesso
         doNothing().when(mailSender).send(any(SimpleMailMessage.class));
 
-        // Act
+        // Act: tenta enviar o e-mail
         boolean resultado = emailService.sendSimpleEmail("teste@exemplo.com", "Assunto Teste", "Mensagem de teste");
 
-        // Assert
+        // Assert: o resultado deve ser true, indicando sucesso
         assertTrue(resultado);
         verify(mailSender, times(1)).send(any(SimpleMailMessage.class));
     }
 
     @Test
     void deveFalharAoEnviarEmail() {
-        // Arrange
-        doThrow(new RuntimeException("Falha simulada")).when(mailSender).send(any(SimpleMailMessage.class));
+        // Arrange: simula uma falha ao tentar enviar o e-mail
+        doThrow(new MailException("Falha simulada") {}).when(mailSender).send(any(SimpleMailMessage.class));
 
-        // Act
+        // Act: tenta enviar o e-mail
         boolean resultado = emailService.sendSimpleEmail("falha@exemplo.com", "Assunto", "Mensagem");
 
-        // Assert
+        // Assert: o resultado deve ser false, indicando que houve falha
         assertFalse(resultado);
         verify(mailSender, times(1)).send(any(SimpleMailMessage.class));
     }

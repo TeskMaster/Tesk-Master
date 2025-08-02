@@ -1,8 +1,5 @@
 package com.microservice_esofii.notification_service.model;
 
-
-
-
 public class EmailRequest {
     private String to;
     private String subject;
