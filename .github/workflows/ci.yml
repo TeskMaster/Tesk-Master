@@ -16,6 +16,14 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Permissões para scripts mvnw
+        run: |
+          chmod +x microsservices_esofii/discovery-server/mvnw
+          chmod +x microsservices_esofii/config-server/mvnw
+          chmod +x config-service/criar-usuarios/mvnw
+          chmod +x config-service/crud-de-eventos/mvnw
+          chmod +x config-service/notification-service/mvnw
+
       - name: Build & Test - discovery-server
         run: |
           cd microsservices_esofii/discovery-server
