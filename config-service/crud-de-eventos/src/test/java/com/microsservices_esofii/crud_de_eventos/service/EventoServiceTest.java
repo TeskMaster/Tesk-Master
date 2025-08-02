@@ -29,6 +29,7 @@ class EventoServiceTest {
 
     @Test
     void deveCriarEventoComSucesso() {
+        // Usando o construtor correto de Evento
         Evento evento = new Evento(null, "Hackathon", "Evento de tecnologia",
                 LocalDate.now(), LocalTime.of(10, 0), "Auditório Central");
         Evento eventoSalvo = new Evento(1L, "Hackathon", "Evento de tecnologia",
@@ -42,41 +43,6 @@ class EventoServiceTest {
         assertEquals(1L, resultado.getId());
         verify(eventoRepository, times(1)).save(evento);
     }
-
-//    @Test
-//    void deveBuscarEventoPorIdExistente() {
-//        Evento evento = new Evento(1L, "Workshop", "Evento técnico",
-//                LocalDate.now(), LocalTime.of(14, 0), "Sala 101");
-//
-//        when(eventoRepository.findById(1L)).thenReturn(Optional.of(evento));
-//
-//        Optional<Evento> resultado = eventoService.buscarPorId(1L);
-//
-//        assertTrue(resultado.isPresent());
-//        assertEquals("Workshop", resultado.get().getTitulo());
-//    }
-
-//    @Test
-//    void deveRetornarVazioQuandoEventoNaoExistir() {
-//        when(eventoRepository.findById(999L)).thenReturn(Optional.empty());
-//
-//        Optional<Evento> resultado = eventoService.buscarPorId(999L);
-//
-//        assertFalse(resultado.isPresent());
-//    }
-//
-//    @Test
-//    void deveExcluirEvento() {
-//        Evento evento = new Evento(1L, "Conferência", "Evento acadêmico",
-//                LocalDate.now(), LocalTime.of(8, 30), "Sala Magna");
-//
-//        when(eventoRepository.findById(1L)).thenReturn(Optional.of(evento));
-//        doNothing().when(eventoRepository).delete(evento);
-//
-//        eventoService.deletar(1L);
-//
-//        verify(eventoRepository, times(1)).delete(evento);
-//    }
 
     @Test
     void deveAtualizarEventoQuandoIdExistir() {
@@ -103,20 +69,16 @@ class EventoServiceTest {
     @Test
     void deveLancarExcecaoQuandoAtualizarEventoComIdInexistente() {
         Long idInexistente = 99L;
-        EventoRequestDTO dto = new EventoRequestDTO();
-        dto.setTitulo("Novo título");
-        dto.setDescricao("Nova descrição");
-        dto.setDataInicio(LocalDate.now());
-        dto.setHorarioInicio(LocalTime.NOON);
-        dto.setLocalEvento("Novo local");
+        Evento eventoAtualizado = new Evento( // Use o construtor com o id!
+                null, "Novo título", "Nova descrição", LocalDate.now(), LocalTime.NOON, "Novo local"
+        );
 
-        when(repository.findById(idInexistente)).thenReturn(Optional.empty());
+        when(eventoRepository.findById(idInexistente)).thenReturn(Optional.empty());
 
         RuntimeException exception = assertThrows(RuntimeException.class, () ->
-                service.atualizarEvento(idInexistente, dto)
+                eventoService.atualizarEvento(idInexistente, eventoAtualizado)
         );
 
         assertEquals("Evento não encontrado com ID: 99", exception.getMessage());
     }
-
 }

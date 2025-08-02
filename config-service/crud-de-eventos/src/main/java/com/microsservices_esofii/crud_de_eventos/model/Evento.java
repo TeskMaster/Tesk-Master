@@ -16,6 +16,15 @@ public class Evento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    public Evento(String titulo, String descricao, LocalDate dataInicio, LocalTime horarioInicio, String localEvento) {
+        this.titulo = titulo;
+        this.descricao = descricao;
+        this.dataInicio = dataInicio;
+        this.horarioInicio = horarioInicio;
+        this.localEvento = localEvento;
+    }
+
+
     @Column(nullable = false)
     private String titulo;
 
