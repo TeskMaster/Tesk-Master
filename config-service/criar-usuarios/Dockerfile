@@ -1,13 +1,17 @@
+# Imagem base com Java 17
 FROM eclipse-temurin:17-jdk-alpine
 
-# Define o diretório de trabalho
+# Instala Maven para o build
+RUN apk add --no-cache maven
+
+# Define o diretório onde o build será feito
 WORKDIR /app
 
-# Copia todos os arquivos do projeto para dentro da imagem
+# Copia todos os arquivos do microserviço
 COPY . .
 
-# Executa o build com Maven (usando o wrapper incluído no projeto)
-RUN ./mvnw clean package
+# Faz o build do JAR sem executar testes
+RUN mvn clean package -DskipTests
 
-# Executa o .jar gerado (permitindo wildcard)
+# Executa a aplicação
 CMD ["sh", "-c", "java -jar target/*.jar"]

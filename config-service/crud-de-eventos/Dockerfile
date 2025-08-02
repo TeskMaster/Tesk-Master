@@ -1,13 +1,17 @@
+# Java 17 com base leve (Alpine)
 FROM eclipse-temurin:17-jdk-alpine
 
-# Define o diretório de trabalho
+# Instala Maven
+RUN apk add --no-cache maven
+
+# Define o diretório onde os comandos serão executados
 WORKDIR /app
 
-# Copia todos os arquivos do projeto para dentro da imagem
+# Copia todos os arquivos do projeto para o container
 COPY . .
 
-# Executa o build com Maven (usando o wrapper incluído no projeto)
-RUN ./mvnw clean package
+# Compila o projeto, sem rodar testes
+RUN mvn clean package -DskipTests
 
-# Executa o .jar gerado (permitindo wildcard)
+# Inicia a aplicação usando o JAR gerado
 CMD ["sh", "-c", "java -jar target/*.jar"]

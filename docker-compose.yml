@@ -1,62 +1,79 @@
+version: '3.8'
+
 services:
+
   discovery-server:
-    build: 
-      context: ./microsservices_esofii
-      dockerfile: ./discovery-server/Dockerfile
+    # Caminho do contexto raiz e Dockerfile específico
+    build:
+      context: ./microsservices_esofii/discovery-server
+      dockerfile: Dockerfile
+    container_name: discovery-server
     ports:
       - "8761:8761"
     networks:
       - spring-net
 
   config-server:
-    build: 
-      context: ./microsservices_esofii
-      dockerfile: ./config-server/Dockerfile
+    build:
+      context: ./microsservices_esofii/config-server
+      dockerfile: Dockerfile
+    container_name: config-server
     ports:
       - "8888:8888"
     depends_on:
       - discovery-server
     environment:
+      # Define a URL do Eureka para se registrar
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
     networks:
       - spring-net
 
   criar-usuarios:
-    build: ./config-service/criar-usuarios
+    build:
+      context: ./config-service/criar-usuarios
+      dockerfile: Dockerfile
+    container_name: criar-usuarios
     ports:
       - "8081:9000"
     depends_on:
-      - config-server
       - discovery-server
+      - config-server
     environment:
       - SPRING_PROFILES_ACTIVE=default
     networks:
       - spring-net
 
   crud-de-eventos:
-    build: ./config-service/crud-de-eventos
+    build:
+      context: ./config-service/crud-de-eventos
+      dockerfile: Dockerfile
+    container_name: crud-de-eventos
     ports:
       - "8082:9001"
     depends_on:
-      - config-server
       - discovery-server
+      - config-server
     environment:
       - SPRING_PROFILES_ACTIVE=default
     networks:
       - spring-net
 
   notification-service:
-    build: ./config-service/notification-service
+    build:
+      context: ./config-service/notification-service
+      dockerfile: Dockerfile
+    container_name: notification-service
     ports:
       - "8083:8084"
     depends_on:
-      - config-server
       - discovery-server
+      - config-server
     environment:
       - SPRING_PROFILES_ACTIVE=default
     networks:
       - spring-net
 
+# Rede Docker compartilhada entre os serviços
 networks:
   spring-net:
     driver: bridge

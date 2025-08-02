@@ -1,22 +1,17 @@
-# Etapa 1: build com Maven
-FROM eclipse-temurin:17-jdk-alpine as builder
-
-RUN apk add --no-cache maven
-
-WORKDIR /build
-
-# Copia todo o conteúdo da pasta config-server
-COPY . .
-
-# Build do projeto diretamente
-RUN mvn clean package -DskipTests
-
-# Etapa 2: runtime
+# Usa uma imagem leve com JDK 17
 FROM eclipse-temurin:17-jdk-alpine
 
+# Instala Maven dentro da imagem
+RUN apk add --no-cache maven
+
+# Define o diretório de trabalho
 WORKDIR /app
 
-# Copia o JAR do build
-COPY --from=builder /build/target/*.jar app.jar
+# Copia todos os arquivos da aplicação para dentro da imagem
+COPY . .
 
-CMD ["java", "-jar", "app.jar"]
+# Executa o build sem rodar os testes
+RUN mvn clean package -DskipTests
+
+# Comando que será executado quando o container iniciar
+CMD ["sh", "-c", "java -jar target/*.jar"]
