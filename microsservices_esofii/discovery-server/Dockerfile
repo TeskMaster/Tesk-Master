@@ -1,25 +1,21 @@
-# Etapa 1: build com Maven
+# Etapa 1: Build com Maven
 FROM eclipse-temurin:17-jdk-alpine as builder
 
-# Instalar Maven
 RUN apk add --no-cache maven
 
 WORKDIR /build
 
-# Copiar todo o projeto pai
-COPY pom.xml .
-COPY config-server ./config-server
-COPY discovery-server ./discovery-server
+# Copia somente o conteúdo do discovery-server
+COPY . .
 
-# Fazer build do projeto inteiro
-RUN cd discovery-server && mvn clean package
+RUN mvn clean package -DskipTests
 
-# Etapa 2: runtime
+# Etapa 2: Runtime
 FROM eclipse-temurin:17-jdk-alpine
 
 WORKDIR /app
 
-# Copia o JAR do discovery-server
-COPY --from=builder /build/discovery-server/target/app.jar app.jar
+# Copia o .jar gerado da etapa de build
+COPY --from=builder /build/target/*.jar app.jar
 
 CMD ["java", "-jar", "app.jar"]
