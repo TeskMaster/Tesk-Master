@@ -1,4 +1,4 @@
-package com.microsservices_esofii.crud_de_eventos;
+package com.microservices_esofii;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -24,31 +24,31 @@ jobs:
       - name: Build & Test - discovery-server
         run: |
           cd microsservices_esofii/discovery-server
-          mvn clean install -DskipTests
+          mvn clean install
 
       # Compila e testa o config-server
       - name: Build & Test - config-server
         run: |
           cd microsservices_esofii/config-server
-          mvn clean install -DskipTests
+          mvn clean install
 
       # Compila e testa o criar-usuarios
       - name: Build & Test - criar-usuarios
         run: |
           cd config-service/criar-usuarios
-          mvn clean install -DskipTests
+          mvn clean install
 
       # Compila e testa o crud-de-eventos
       - name: Build & Test - crud-de-eventos
         run: |
           cd config-service/crud-de-eventos
-          mvn clean install -DskipTests
+          mvn clean install
 
       # Compila e testa o notification-service
       - name: Build & Test - notification-service
         run: |
           cd config-service/notification-service
-          mvn clean install -DskipTests
+          mvn clean install
 
       # Constrói imagens Docker para todos os serviços
       - name: Build Docker images
