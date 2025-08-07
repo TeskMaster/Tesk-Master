@@ -62,7 +62,17 @@ jobs:
         run: |
           docker compose build
 
-      # Push de todas as imagens usando docker compose (v2)
-      - name: Push images to Docker Hub
+      # Tag e Push das imagens para o Docker Hub
+      - name: Tag and Push images to Docker Hub
         run: |
-          docker compose push
+          docker tag tesk-master-discovery-server ${{ secrets.DOCKER_HUB_USERNAME }}/discovery-server:latest
+          docker tag tesk-master-config-server ${{ secrets.DOCKER_HUB_USERNAME }}/config-server:latest
+          docker tag tesk-master-criar-usuarios ${{ secrets.DOCKER_HUB_USERNAME }}/criar-usuarios:latest
+          docker tag tesk-master-crud-de-eventos ${{ secrets.DOCKER_HUB_USERNAME }}/crud-de-eventos:latest
+          docker tag tesk-master-notification-service ${{ secrets.DOCKER_HUB_USERNAME }}/notification-service:latest
+          
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/discovery-server:latest
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/config-server:latest
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/criar-usuarios:latest
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/crud-de-eventos:latest
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/notification-service:latest
